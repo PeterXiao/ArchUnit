@@ -15,12 +15,6 @@
  */
 package com.tngtech.archunit.core.domain;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-
 import com.google.common.base.MoreObjects;
 import com.google.common.collect.ComparisonChain;
 import com.google.common.collect.ImmutableMap;
@@ -30,6 +24,8 @@ import com.tngtech.archunit.base.DescribedPredicate;
 import com.tngtech.archunit.base.HasDescription;
 import com.tngtech.archunit.core.Convertible;
 import com.tngtech.archunit.core.domain.properties.HasName;
+
+import java.util.*;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.tngtech.archunit.PublicAPI.Usage.ACCESS;
@@ -119,6 +115,11 @@ public class Dependency implements HasDescription, Comparable<Dependency>, Conve
     @PublicAPI(usage = ACCESS)
     public Type getType() {
         return type;
+    }
+
+    @PublicAPI(usage = ACCESS)
+    public int getLineNumber() {
+        return lineNumber;
     }
 
     @PublicAPI(usage = ACCESS)
