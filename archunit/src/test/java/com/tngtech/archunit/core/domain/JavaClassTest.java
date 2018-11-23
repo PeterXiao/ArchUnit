@@ -320,7 +320,8 @@ public class JavaClassTest {
                 .areAtLeastOne(callDependency()
                         .from(AAccessingB.class)
                         .to(B.class, "call")
-                        .inLineNumber(7));
+                        .inLineNumber(7))
+                .areNot(anyDependency().toSelf());
     }
 
     @Test
@@ -335,7 +336,8 @@ public class JavaClassTest {
                 .areAtLeastOne(implementsDependency()
                         .from(AExtendingSuperAImplementingInterfaceForA.class)
                         .to(InterfaceForA.class)
-                        .inLineNumber(0));
+                        .inLineNumber(0))
+                .areNot(anyDependency().toSelf());
     }
 
     @Test
@@ -354,7 +356,8 @@ public class JavaClassTest {
                 .areAtLeast(2, parameterTypeDependency()
                         .from(AhavingMembersOfTypeB.class)
                         .to(B.class)
-                        .inLineNumber(0));
+                        .inLineNumber(0))
+                .areNot(anyDependency().toSelf());
     }
 
     @Test
@@ -374,7 +377,8 @@ public class JavaClassTest {
                 .areAtLeastOne(callDependency()
                         .from(AAccessingB.class)
                         .to(B.class, "call")
-                        .inLineNumber(7));
+                        .inLineNumber(7))
+                .areNot(anyDependency().toSelf());
     }
 
     @Test
@@ -394,7 +398,8 @@ public class JavaClassTest {
                 .areAtLeastOne(implementsDependency()
                         .from(AExtendingSuperAImplementingInterfaceForA.class)
                         .to(InterfaceForA.class)
-                        .inLineNumber(0));
+                        .inLineNumber(0))
+                .areNot(anyDependency().toSelf());
     }
 
     @Test
@@ -413,7 +418,8 @@ public class JavaClassTest {
                 .areAtLeast(2, parameterTypeDependency()
                         .from(AhavingMembersOfTypeB.class)
                         .to(B.class)
-                        .inLineNumber(0));
+                        .inLineNumber(0))
+                .areNot(anyDependency().toSelf());
     }
 
     @Test
@@ -734,6 +740,15 @@ public class JavaClassTest {
                 @Override
                 public boolean matches(Dependency value) {
                     return value.getTargetClass().isPrimitive();
+                }
+            };
+        }
+
+        Condition<Dependency> toSelf() {
+            return new Condition<Dependency>("any dependencies to self") {
+                @Override
+                public boolean matches(Dependency value) {
+                    return value.getTargetClass().equals(value.getOriginClass());
                 }
             };
         }

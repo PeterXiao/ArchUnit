@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.Set;
 
 import com.google.common.base.Joiner;
+import com.google.common.base.Predicate;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.google.common.collect.FluentIterable;
@@ -539,14 +540,15 @@ public class JavaClass implements HasName, HasAnnotations, HasModifiers {
      */
     @PublicAPI(usage = ACCESS)
     public Set<Dependency> getDirectDependenciesFromSelf() {
-        ImmutableSet.Builder<Dependency> result = ImmutableSet.builder();
-        result.addAll(dependenciesFromAccesses(getAccessesFromSelf()));
-        result.addAll(inheritanceDependenciesFromSelf());
-        result.addAll(fieldDependenciesFromSelf());
-        result.addAll(returnTypeDependenciesFromSelf());
-        result.addAll(methodParameterDependenciesFromSelf());
-        result.addAll(constructorParameterDependenciesFromSelf());
-        return result.build();
+        return FluentIterable
+                .from(dependenciesFromAccesses(getAccessesFromSelf()))
+                .append(inheritanceDependenciesFromSelf())
+                .append(fieldDependenciesFromSelf())
+                .append(returnTypeDependenciesFromSelf())
+                .append(methodParameterDependenciesFromSelf())
+                .append(constructorParameterDependenciesFromSelf())
+                .filter(noSelfAccess())
+                .toSet();
     }
 
     /**
@@ -557,14 +559,15 @@ public class JavaClass implements HasName, HasAnnotations, HasModifiers {
      */
     @PublicAPI(usage = ACCESS)
     public Set<Dependency> getDirectDependenciesToSelf() {
-        ImmutableSet.Builder<Dependency> result = ImmutableSet.builder();
-        result.addAll(dependenciesFromAccesses(getAccessesToSelf()));
-        result.addAll(inheritanceDependenciesToSelf());
-        result.addAll(fieldDependenciesToSelf());
-        result.addAll(returnTypeDependenciesToSelf());
-        result.addAll(methodParameterDependenciesToSelf());
-        result.addAll(constructorParameterDependenciesToSelf());
-        return result.build();
+        return FluentIterable
+                .from(dependenciesFromAccesses(getAccessesToSelf()))
+                .append(inheritanceDependenciesToSelf())
+                .append(fieldDependenciesToSelf())
+                .append(returnTypeDependenciesToSelf())
+                .append(methodParameterDependenciesToSelf())
+                .append(constructorParameterDependenciesToSelf())
+                .filter(noSelfAccess())
+                .toSet();
     }
 
     @PublicAPI(usage = ACCESS)
@@ -808,7 +811,7 @@ public class JavaClass implements HasName, HasAnnotations, HasModifiers {
 
     private Set<Dependency> dependenciesFromAccesses(Set<JavaAccess<?>> accesses) {
         ImmutableSet.Builder<Dependency> result = ImmutableSet.builder();
-        for (JavaAccess<?> access : filterNoSelfAccess(accesses)) {
+        for (JavaAccess<?> access : accesses) {
             result.add(Dependency.from(access));
         }
         return result.build();
@@ -898,14 +901,13 @@ public class JavaClass implements HasName, HasAnnotations, HasModifiers {
         return result;
     }
 
-    private Set<JavaAccess<?>> filterNoSelfAccess(Set<? extends JavaAccess<?>> accesses) {
-        Set<JavaAccess<?>> result = new HashSet<>();
-        for (JavaAccess<?> access : accesses) {
-            if (!access.getTargetOwner().equals(access.getOriginOwner())) {
-                result.add(access);
+    private Predicate<Dependency> noSelfAccess() {
+        return new Predicate<Dependency>() {
+            @Override
+            public boolean apply(Dependency dependency) {
+                return !dependency.getTargetClass().equals(dependency.getOriginClass());
             }
-        }
-        return result;
+        };
     }
 
     private Set<JavaClass> nonPrimitive(Collection<JavaClass> classes) {

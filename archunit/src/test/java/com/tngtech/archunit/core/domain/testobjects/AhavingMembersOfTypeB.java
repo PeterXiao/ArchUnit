@@ -13,4 +13,10 @@ public class AhavingMembersOfTypeB {
 
     void methodWithParameterTypeB(String some, B b) {
     }
+
+    AhavingMembersOfTypeB ignoredField;
+
+    AhavingMembersOfTypeB ignored(AhavingMembersOfTypeB other) {
+        return null;
+    }
 }
